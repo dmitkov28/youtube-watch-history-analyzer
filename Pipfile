@@ -9,6 +9,8 @@ lxml = "*"
 ruff = "*"
 pandas = "*"
 dash = "*"
+google-api-python-client = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
