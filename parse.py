@@ -47,6 +47,7 @@ def process_data(html: str) -> List[Dict[str, str]]:
                 item = {
                     "video_title": video.get_text(strip=True),
                     "video_url": video.get("href"),
+                    "video_id": str(video.get("href")).split("v=")[-1],
                     "channel_title": channel.get_text(strip=True),
                     "channel_url": channel.get("href"),
                     "timestamp": timestamp,
