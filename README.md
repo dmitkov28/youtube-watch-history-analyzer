@@ -39,7 +39,14 @@ pipenv shell
 python parse.py -f "/path/to/your/watch-history.html"
 ```
 
-### Step 3: Spin up the dashboard
+### Step 3: Fetch additional metadata passing the json generated in the above step
+
+```bash
+python get_additional_metadata.py -f "/path/to/your/watch_history.json"
+```
+
+
+### Step 4: Spin up the dashboard
 ```bash
 python dashboard.py
 ```
