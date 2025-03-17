@@ -1,5 +1,4 @@
 from dash import Dash, html, dcc
-import pandas as pd
 import plotly.graph_objects as go
 
 from analyze import load_json_as_df
