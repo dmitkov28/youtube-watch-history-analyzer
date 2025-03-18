@@ -16,7 +16,7 @@ This tool helps you visualize and analyze your YouTube viewing habits by process
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/youtube-watch-analyzer.git
+git clone https://github.com/dmitkov28/youtube-watch-history-analyzer
 cd youtube-watch-analyzer
 
 # Create a virtual environment and install the dependencies
