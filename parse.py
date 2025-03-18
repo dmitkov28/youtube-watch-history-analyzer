@@ -30,7 +30,7 @@ def read_data(file_name: str) -> str:
     return html
 
 
-def process_data(html: str) -> List[Dict[str, str]]:
+def process_youtube_watch_history_data(html: str) -> List[Dict[str, str]]:
     soup = BeautifulSoup(html, "lxml")
     divs = soup.find_all(
         "div", {"class": "content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1"}
@@ -64,5 +64,5 @@ if __name__ == "__main__":
         raise ValueError("File path is required")
 
     html = read_data(args.file_path)
-    parsed_divs = process_data(html)
+    parsed_divs = process_youtube_watch_history_data(html)
     save_to_json(parsed_divs, "watch_history.json")
