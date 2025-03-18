@@ -56,8 +56,13 @@ videos_fig.update_layout(
 
 app.layout = [
     html.H1(children="Youtube Watch History", style={"textAlign": "center"}),
-    dcc.Graph(figure=channels_fig),
-    dcc.Graph(figure=videos_fig),
+    html.Div(
+        [
+            dcc.Graph(figure=channels_fig),
+            dcc.Graph(figure=videos_fig),
+        ],
+        style={"display": "flex"},
+    ),
 ]
 
 if __name__ == "__main__":
