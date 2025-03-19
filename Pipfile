@@ -12,6 +12,7 @@ dash = "*"
 google-api-python-client = "*"
 python-dotenv = "*"
 pytest = "*"
+httpx = "*"
 
 [dev-packages]
 
