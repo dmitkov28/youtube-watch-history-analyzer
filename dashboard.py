@@ -5,9 +5,13 @@ from analyze import load_json_as_df
 from components import indicator
 
 df = load_json_as_df("./watch_history.json")
+music = df[df["video_url"].str.contains("music")]
+videos = df[~df["video_url"].str.contains("music")]
+
 app = Dash()
 
-total_videos_watched = len(df["video_id"].unique())
+total_yt_music = len(music["video_id"].unique())
+total_videos_watched = len(videos["video_id"].unique())
 
 df["date"] = df["timestamp"].dt.date
 avg_videos_per_day = df.groupby("date").size().mean()
@@ -32,7 +36,7 @@ watched_videos_count_chart.update_layout(
     yaxis_title="Number of Videos Watched",
 )
 
-top_channels = df["channel_title"].value_counts().head(50).sort_values(ascending=True)
+top_channels = videos["channel_title"].value_counts().head(50).sort_values(ascending=True)
 channels_fig = go.Figure(
     go.Bar(
         y=top_channels.index,
@@ -55,7 +59,7 @@ channels_fig.update_layout(
     ),
 )
 
-top_videos = df["video_title"].value_counts().head(50).sort_values(ascending=True)
+top_videos = videos["video_title"].value_counts().head(50).sort_values(ascending=True)
 videos_fig = go.Figure(
     go.Bar(
         y=top_videos.index,
@@ -84,6 +88,7 @@ app.layout = html.Div(
         html.Div(
             [
                 indicator(dcc, go, total_videos_watched, "Total Videos Watched"),
+                indicator(dcc, go, total_yt_music, "Total YouTube Music Videos Watched"),
                 indicator(dcc, go, avg_videos_per_day, "Average Videos per Day"),
             ],
             style={"display": "flex", "justifyContent": "space-between", "maxHeight": "320px"},
