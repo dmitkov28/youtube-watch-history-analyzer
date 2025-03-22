@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
-from youtube import get_video_metadata
+from app.processing.youtube import get_video_metadata
 
 
 def save_to_json(data: List[Dict[str, str]], file_name: str) -> None:
