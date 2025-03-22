@@ -1,4 +1,4 @@
-from parse import process_youtube_watch_history_data, read_data
+from app.processing.parse import process_youtube_watch_history_data, read_data
 
 test_html = """
 <div class="mdl-grid">
