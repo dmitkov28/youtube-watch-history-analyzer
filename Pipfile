@@ -13,6 +13,7 @@ google-api-python-client = "*"
 python-dotenv = "*"
 pytest = "*"
 httpx = "*"
+dash-mantine-components = "*"
 
 [dev-packages]
 
