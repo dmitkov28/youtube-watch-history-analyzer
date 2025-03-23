@@ -4,6 +4,13 @@ df = load_json_as_df("./watch_history.json")
 music = df[df["video_url"].str.contains("music")]
 videos = df[~df["video_url"].str.contains("music")]
 
+videos_timeline = videos.groupby(df["timestamp"].dt.to_period("W")).agg(
+    {"video_id": "count"}
+)
+videos_timeline.reset_index(inplace=True)
+videos_timeline["timestamp"] = videos_timeline["timestamp"].dt.start_time
+videos_timeline.rename(columns={"video_id": "count"}, inplace=True)
+
 total_yt_music = len(music["video_id"].unique())
 total_videos_watched = len(videos["video_id"].unique())
 
