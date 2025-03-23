@@ -1,10 +1,16 @@
 import dash
-from dash import html
-from dash import dcc
-from pandas import Series
+import plotly.express as px
 import plotly.graph_objects as go
-from app.web.components import bar_chart, indicator
-from app.data import total_videos_watched, avg_videos_per_day, top_videos
+from dash import dcc, html
+from pandas import Series
+
+from app.data import (
+    avg_videos_per_day,
+    top_videos,
+    total_videos_watched,
+    videos_timeline,
+)
+from app.web.components import bar_chart, indicator, line_chart
 
 dash.register_page(__name__, path="/videos", name="Videos")
 
@@ -14,13 +20,24 @@ layout = html.Div(
         html.H1(children="Videos", style={"textAlign": "center"}),
         html.Div(
             [
+                line_chart(
+                    px,
+                    videos_timeline,
+                    x_col_name="timestamp",
+                    y_col_name="count",
+                    title="Weekly Videos Watched",
+                )
+            ]
+        ),
+        html.Div(
+            [
                 indicator(dcc, go, total_videos_watched, "Total Videos Watched"),
                 indicator(dcc, go, avg_videos_per_day, "Average Videos per Day"),
             ],
             style={
                 "display": "flex",
                 "justifyContent": "space-between",
-                "maxHeight": "320px",
+                "height": "290px",
             },
         ),
         html.Div(
