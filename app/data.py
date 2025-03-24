@@ -23,7 +23,7 @@ watched_videos_count = df.groupby(df["timestamp"].dt.to_period("W")).agg(
 watched_videos_count = watched_videos_count.reset_index()
 watched_videos_count["timestamp"] = watched_videos_count["timestamp"].dt.to_timestamp()
 
-top_videos = videos["video_title"].value_counts().head(50).sort_values(ascending=True)
+top_videos = videos["video_title"].value_counts().head(10).sort_values(ascending=True)
 top_channels = (
     videos["channel_title"].value_counts().head(50).sort_values(ascending=True)
 )
