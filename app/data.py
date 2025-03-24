@@ -30,6 +30,9 @@ def load_and_preprocess_watch_history() -> Dict[str, Any]:
 
     df["date"] = df["timestamp"].dt.date
 
+    df["day_of_week"] = df["timestamp"].dt.day_name()
+    df["hour"] = df["timestamp"].dt.hour
+
     music = df[df["video_url"].str.contains("music", na=False)].copy()
     videos = df[~df["video_url"].str.contains("music", na=False)].copy()
 
@@ -63,6 +66,21 @@ def load_and_preprocess_watch_history() -> Dict[str, Any]:
     top_videos = videos["video_title"].value_counts().nlargest(10).sort_values()
     top_channels = videos["channel_title"].value_counts().nlargest(50).sort_values()
 
+    heatmap_data = df.groupby(["day_of_week", "hour"]).size().reset_index(name="count")
+    days_order = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
+    heatmap_data["day_of_week"] = pd.Categorical(
+        heatmap_data["day_of_week"], categories=days_order, ordered=True
+    )
+    heatmap_data = heatmap_data.sort_values("day_of_week", ascending=False)
+
     return {
         "raw_df": df,
         "music_df": music,
@@ -75,6 +93,7 @@ def load_and_preprocess_watch_history() -> Dict[str, Any]:
         "avg_yt_music": avg_yt_music,
         "top_videos": top_videos,
         "top_channels": top_channels,
+        "heatmap_data": heatmap_data,
     }
 
 
@@ -84,7 +103,6 @@ def load_category_data() -> pd.DataFrame:
     Returns top 5 categories with their counts.
     """
     try:
-
         with open("youtube_data.json", "r") as f:
             data = json.load(f)
             yt_data_df = json_normalize(data)
@@ -130,6 +148,7 @@ try:
     watched_videos_count = youtube_data["watched_videos_count"]
     top_videos = youtube_data["top_videos"]
     top_channels = youtube_data["top_channels"]
+    heatmap_data = youtube_data["heatmap_data"]
 except Exception as e:
     print(f"Error initializing data module: {e}")
     total_videos_watched = 0
@@ -141,3 +160,4 @@ except Exception as e:
     top_videos = pd.Series()
     top_channels = pd.Series()
     categories = pd.DataFrame(columns=["category_title", "id"])
+    heatmap_data = pd.DataFrame()
