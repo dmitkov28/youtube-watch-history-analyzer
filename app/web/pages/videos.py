@@ -5,12 +5,10 @@ from dash import dcc, html
 from pandas import Series
 
 from app.data import (
-    avg_videos_per_day,
     top_videos,
-    total_videos_watched,
     videos_timeline,
 )
-from app.web.components import bar_chart, indicator, line_chart
+from app.web.components import bar_chart, line_chart
 
 dash.register_page(__name__, path="/videos", name="Videos")
 
@@ -42,36 +40,6 @@ layout = html.Div(
                 "backgroundColor": "#f8f9fa",
                 "borderRadius": "10px",
                 "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-            },
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [indicator(dcc, go, total_videos_watched, "Total Videos Watched")],
-                    style={
-                        "width": "48%",
-                        "backgroundColor": "#f8f9fa",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                        "padding": "15px",
-                    },
-                ),
-                html.Div(
-                    [indicator(dcc, go, avg_videos_per_day, "Average Videos per Day")],
-                    style={
-                        "width": "48%",
-                        "backgroundColor": "#f8f9fa",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                        "padding": "15px",
-                    },
-                ),
-            ],
-            style={
-                "display": "flex",
-                "justifyContent": "space-between",
-                "marginBottom": "30px",
-                "flexWrap": "wrap",
             },
         ),
         html.Div(
