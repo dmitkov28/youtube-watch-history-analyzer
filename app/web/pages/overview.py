@@ -1,5 +1,6 @@
 import dash
 from dash import html, dcc
+import plotly.express as px
 import plotly.graph_objects as go
 from app.data import (
     total_videos_watched,
@@ -7,8 +8,9 @@ from app.data import (
     total_yt_music,
     avg_yt_music,
     categories,
+    heatmap_data
 )
-from app.web.components import indicator, pie_chart
+from app.web.components import heatmap, indicator, pie_chart
 
 dash.register_page(__name__, path="/overview", name="Overview")
 
@@ -74,6 +76,15 @@ layout = html.Div(
         ),
         html.Div(
             pie_chart(categories, "category_title", "id", "Video Categories"),
+            style={
+                "backgroundColor": "#f8f9fa",
+                "borderRadius": "10px",
+                "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
+                "padding": "15px",
+            },
+        ),
+        html.Div(
+            heatmap(px, heatmap_data, title="Watch Times Heatmap", legend_label="Videos Watched"),
             style={
                 "backgroundColor": "#f8f9fa",
                 "borderRadius": "10px",
