@@ -10,5 +10,6 @@ def indicator(dcc, go_module, value: int | float, title: str) -> dcc.Graph:
                 title={"text": title},
             )
         ),
+        style={"height": "300px"},
     )
     return graph
