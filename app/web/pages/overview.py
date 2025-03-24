@@ -6,7 +6,7 @@ from app.data import (
     avg_videos_per_day,
     total_yt_music,
     avg_yt_music,
-    categories
+    categories,
 )
 from app.web.components import indicator, pie_chart
 
@@ -42,7 +42,11 @@ layout = html.Div(
         html.Div(
             [
                 html.Div(
-                    [indicator(dcc, go, total_yt_music, "Total YT Music")],
+                    [
+                        indicator(
+                            dcc, go, total_yt_music, "Total YT Music Videos Watched"
+                        )
+                    ],
                     style={
                         "width": "48%",
                         "backgroundColor": "#f8f9fa",
@@ -52,7 +56,11 @@ layout = html.Div(
                     },
                 ),
                 html.Div(
-                    [indicator(dcc, go, avg_yt_music, "Average Videos per Day")],
+                    [
+                        indicator(
+                            dcc, go, avg_yt_music, "Average YT Music Videos per Day"
+                        )
+                    ],
                     style={
                         "width": "48%",
                         "backgroundColor": "#f8f9fa",
@@ -65,8 +73,14 @@ layout = html.Div(
             className="flex justify-between max-h-fit",
         ),
         html.Div(
-        pie_chart(categories, "category_title", "id", "Video Categories")
-        )
+            pie_chart(categories, "category_title", "id", "Video Categories"),
+            style={
+                "backgroundColor": "#f8f9fa",
+                "borderRadius": "10px",
+                "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
+                "padding": "15px",
+            },
+        ),
     ],
     className="flex flex-col gap-y-3",
 )
