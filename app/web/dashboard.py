@@ -2,7 +2,13 @@ import dash
 import dash_mantine_components as dmc
 from dash import Dash
 
-app = Dash(__name__, use_pages=True, external_stylesheets=dmc.styles.ALL)
+external_scripts = [{"src": "https://cdn.tailwindcss.com"}]
+app = Dash(
+    __name__,
+    use_pages=True,
+    external_stylesheets=dmc.styles.ALL,
+    external_scripts=external_scripts,
+)
 
 layout = dmc.AppShell(
     [
@@ -19,6 +25,10 @@ layout = dmc.AppShell(
         dmc.AppShellNavbar(
             id="navbar",
             children=[
+                dmc.NavLink(
+                    label="Overview",
+                    href="/overview",
+                ),
                 dmc.NavLink(
                     label="Videos",
                     href="/videos",
