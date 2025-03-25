@@ -7,8 +7,9 @@ from pandas import Series
 from app.data import (
     top_videos,
     videos_timeline,
+    subbed_vs_unsubbed
 )
-from app.web.components import bar_chart, line_chart
+from app.web.components import bar_chart, line_chart, pie_chart
 
 dash.register_page(__name__, path="/videos", name="Videos")
 
@@ -42,6 +43,7 @@ layout = html.Div(
                 "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
             },
         ),
+        html.Div(pie_chart(subbed_vs_unsubbed, "is_subscribed", "count", "Watched Videos (Subscribed vs Unsubscribed Channels)")),
         html.Div(
             [
                 bar_chart(

@@ -11,6 +11,23 @@ def load_json_as_df(file_path: str) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
+def load_csv_as_df(file_path: str) -> pd.DataFrame:
+    return pd.read_csv(file_path)
+
+
+def load_and_preprocess_subscriptions(file_path: str) -> pd.DataFrame:
+    df = load_csv_as_df(file_path)
+    df.rename(
+        columns={
+            "Channel Id": "channel_id",
+            "Channel Url": "channel_url",
+            "Channel Title": "channel_name",
+        },
+        inplace=True,
+    )
+    return df
+
+
 def load_and_preprocess_watch_history() -> Dict[str, Any]:
     """
     Load and preprocess YouTube watch history data.
@@ -93,11 +110,21 @@ def load_and_preprocess_watch_history() -> Dict[str, Any]:
     }
 
 
+def load_and_preprocess_youtube_data() -> pd.DataFrame:
+    with open("youtube_data.json", "r") as f:
+        data = json.load(f)
+        yt_data_df = json_normalize(data)
+
+    subscriptions = load_and_preprocess_subscriptions("./subscriptions.csv")
+
+    yt_data_df["is_subscribed"] = yt_data_df["snippet.channelId"].isin(
+        subscriptions["channel_id"]
+    )
+
+    return yt_data_df
+
+
 def load_category_data() -> pd.DataFrame:
-    """
-    Load and process category data from YouTube.
-    Returns top 5 categories with their counts.
-    """
     try:
         with open("youtube_data.json", "r") as f:
             data = json.load(f)
@@ -106,7 +133,6 @@ def load_category_data() -> pd.DataFrame:
         with open("categories.json", "r") as f:
             categories = json.load(f)
             categories_df = json_normalize(categories)
-
         categories_df.rename(
             columns={"id": "category_id", "title": "category_title"}, inplace=True
         )
@@ -133,18 +159,26 @@ def load_category_data() -> pd.DataFrame:
 
 
 try:
-    youtube_data = load_and_preprocess_watch_history()
+    watch_history_data = load_and_preprocess_watch_history()
     categories = load_category_data()
+    youtube_data = load_and_preprocess_youtube_data()
+    subbed_vs_unsubbed = (
+        youtube_data[~youtube_data["snippet.categoryId"].str.contains("10")][
+            ["is_subscribed"]
+        ]
+        .value_counts()
+        .reset_index()
+    )
 
-    total_videos_watched = youtube_data["total_videos_watched"]
-    avg_videos_per_day = youtube_data["avg_videos_per_day"]
-    total_yt_music = youtube_data["total_yt_music"]
-    avg_yt_music = youtube_data["avg_yt_music"]
-    videos_timeline = youtube_data["videos_timeline"]
-    watched_videos_count = youtube_data["watched_videos_count"]
-    top_videos = youtube_data["top_videos"]
-    top_channels = youtube_data["top_channels"]
-    heatmap_data = youtube_data["heatmap_data"]
+    total_videos_watched = watch_history_data["total_videos_watched"]
+    avg_videos_per_day = watch_history_data["avg_videos_per_day"]
+    total_yt_music = watch_history_data["total_yt_music"]
+    avg_yt_music = watch_history_data["avg_yt_music"]
+    videos_timeline = watch_history_data["videos_timeline"]
+    watched_videos_count = watch_history_data["watched_videos_count"]
+    top_videos = watch_history_data["top_videos"]
+    top_channels = watch_history_data["top_channels"]
+    heatmap_data = watch_history_data["heatmap_data"]
 except Exception as e:
     print(f"Error initializing data module: {e}")
     total_videos_watched = 0
@@ -157,3 +191,4 @@ except Exception as e:
     top_channels = pd.Series()
     categories = pd.DataFrame(columns=["category_title", "id"])
     heatmap_data = pd.DataFrame()
+    youtube_data = pd.DataFrame()
