@@ -6,10 +6,6 @@ from pandas import json_normalize
 
 
 def load_json_as_df(file_path: str) -> pd.DataFrame:
-    """
-    Load a JSON file and return it as a pandas DataFrame.
-    Originally imported from app.processing.analyze but moved here for clarity.
-    """
     with open(file_path, "r") as f:
         data = json.load(f)
     return pd.DataFrame(data)
