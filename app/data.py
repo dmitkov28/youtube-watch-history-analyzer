@@ -169,6 +169,8 @@ try:
         .value_counts()
         .reset_index()
     )
+    
+    word_cloud_data = ' '.join(youtube_data["snippet.title"].dropna().astype(str))
 
     total_videos_watched = watch_history_data["total_videos_watched"]
     avg_videos_per_day = watch_history_data["avg_videos_per_day"]
