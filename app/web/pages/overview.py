@@ -8,7 +8,7 @@ from app.data import (
     total_yt_music,
     avg_yt_music,
     categories,
-    heatmap_data
+    heatmap_data,
 )
 from app.web.components import heatmap, indicator, pie_chart
 
@@ -84,7 +84,12 @@ layout = html.Div(
             },
         ),
         html.Div(
-            heatmap(px, heatmap_data, title="Watch Times Heatmap", legend_label="Videos Watched"),
+            heatmap(
+                px,
+                heatmap_data,
+                title="Watch Times Heatmap",
+                legend_label="Videos Watched",
+            ),
             style={
                 "backgroundColor": "#f8f9fa",
                 "borderRadius": "10px",
