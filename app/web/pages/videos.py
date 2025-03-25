@@ -4,12 +4,8 @@ import plotly.graph_objects as go
 from dash import dcc, html
 from pandas import Series
 
-from app.data import (
-    top_videos,
-    videos_timeline,
-    subbed_vs_unsubbed
-)
-from app.web.components import bar_chart, line_chart, pie_chart
+from app.data import top_videos, videos_timeline, subbed_vs_unsubbed, word_cloud_data
+from app.web.components import bar_chart, line_chart, pie_chart, word_cloud
 
 dash.register_page(__name__, path="/videos", name="Videos")
 
@@ -43,7 +39,21 @@ layout = html.Div(
                 "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
             },
         ),
-        html.Div(pie_chart(subbed_vs_unsubbed, "is_subscribed", "count", "Watched Videos (Subscribed vs Unsubscribed Channels)")),
+        html.Div(
+            pie_chart(
+                subbed_vs_unsubbed,
+                "is_subscribed",
+                "count",
+                "Watched Videos (Subscribed vs Unsubscribed Channels)",
+            )
+        ),
+        html.Div(
+            word_cloud(
+                go,
+                word_cloud_data,
+                "Video Titles Wordcloud",
+            )
+        ),
         html.Div(
             [
                 bar_chart(
