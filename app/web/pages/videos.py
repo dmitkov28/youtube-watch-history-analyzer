@@ -1,11 +1,18 @@
 import dash
+import datetime
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import dcc, html
 from pandas import Series
 
-from app.data import top_videos, videos_timeline, subbed_vs_unsubbed, word_cloud_data
-from app.web.components import bar_chart, line_chart, pie_chart, word_cloud
+from app.data import (
+    top_videos,
+    videos_timeline,
+    subbed_vs_unsubbed,
+    word_cloud_data,
+    longest_video,
+)
+from app.web.components import bar_chart, card, line_chart, pie_chart, word_cloud
 
 dash.register_page(__name__, path="/videos", name="Videos")
 
@@ -81,6 +88,14 @@ layout = html.Div(
                 "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
                 "padding": "15px",
             },
+        ),
+        html.Div(
+            card(
+                title=f"{longest_video["video_title"]} ({str(datetime.timedelta(seconds=longest_video["video_duration"]))})",
+                description=longest_video["video_description"][:150],
+                image_url=longest_video["video_thumbnail_url"],
+            ),
+            style={"marginTop": "20px"},
         ),
     ],
     style={
