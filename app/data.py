@@ -169,8 +169,8 @@ try:
         .value_counts()
         .reset_index()
     )
-    
-    word_cloud_data = ' '.join(youtube_data["snippet.title"].dropna().astype(str))
+
+    word_cloud_data = " ".join(youtube_data["snippet.title"].dropna().astype(str))
 
     total_videos_watched = watch_history_data["total_videos_watched"]
     avg_videos_per_day = watch_history_data["avg_videos_per_day"]
@@ -194,3 +194,70 @@ except Exception as e:
     categories = pd.DataFrame(columns=["category_title", "id"])
     heatmap_data = pd.DataFrame()
     youtube_data = pd.DataFrame()
+
+
+def load_watch_history() -> pd.DataFrame:
+    df = load_json_as_df("./watch_history.json")
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    return df
+
+
+def load_categories() -> pd.DataFrame:
+    with open("categories.json", "r") as f:
+        categories = json.load(f)
+        df = json_normalize(categories)
+        df.rename(
+            columns={"id": "category_id", "title": "category_title"}, inplace=True
+        )
+    return df
+
+
+def load_youtube_data() -> pd.DataFrame:
+    with open("youtube_data.json", "r") as f:
+        data = json.load(f)
+    df = json_normalize(data)
+    df = df[
+        [
+            "id",
+            "snippet.publishedAt",
+            "snippet.channelId",
+            "snippet.channelTitle",
+            "snippet.title",
+            "snippet.description",
+            "snippet.description",
+            "snippet.thumbnails.standard.url",
+            "snippet.tags",
+            "snippet.categoryId",
+            "contentDetails.duration",
+            "statistics.viewCount",
+            "statistics.likeCount",
+            "statistics.commentCount",
+        ]
+    ].rename(
+        columns={
+            "snippet.publishedAt": "date_published",
+            "snippet.channelId": "channel_id",
+            "snippet.channelTitle": "channel_title",
+            "snippet.title": "video_title",
+            "snippet.description": "video_description",
+            "snippet.thumbnails.standard.url": "video_thumbnail_url",
+            "snippet.tags": "video_tags",
+            "snippet.categoryId": "video_category_id",
+            "contentDetails.duration": "video_duration",
+            "statistics.viewCount": "video_views",
+            "statistics.likeCount": "video_likes",
+            "statistics.commentCount": "video_comments",
+        }
+    )
+    df["video_views"] = df["video_views"].astype(float, errors="ignore")
+    df["video_likes"] = df["video_likes"].astype(float, errors="ignore")
+    df["video_comments"] = df["video_comments"].astype(float, errors="ignore")
+    df["video_duration"] = pd.to_timedelta(df["video_duration"]).dt.total_seconds()
+    return df
+
+
+wh = load_watch_history()
+cats = load_categories()
+yt = load_youtube_data()
+
+longest_video = yt.loc[yt["video_duration"].idxmax()].to_dict()
