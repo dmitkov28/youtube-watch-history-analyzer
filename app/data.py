@@ -256,8 +256,41 @@ def load_youtube_data() -> pd.DataFrame:
     return df
 
 
+def merge_dataframes(
+    watch_history: pd.DataFrame, youtube: pd.DataFrame, categories: pd.DataFrame
+) -> pd.DataFrame:
+    merged_df = pd.merge(watch_history, youtube, left_on="video_id", right_on="id")
+    merged_df.drop(columns=["video_title_y", "channel_title_y"], inplace=True)
+    merged_df.rename(
+        columns={"video_title_x": "video_title", "channel_title_x": "channel_title"},
+        inplace=True,
+    )
+    merged_df = pd.merge(
+        merged_df, categories, left_on="video_category_id", right_on="category_id"
+    )
+    merged_df.drop(columns=["video_category_id"], inplace=True)
+    return merged_df
+
+
 wh = load_watch_history()
 cats = load_categories()
 yt = load_youtube_data()
 
-longest_video = yt.loc[yt["video_duration"].idxmax()].to_dict()
+merged_data = merge_dataframes(wh, yt, cats)
+
+longest_video = merged_data.loc[yt["video_duration"].idxmax()].to_dict()
+
+most_watched_videos = (
+    merged_data[~merged_data["video_url"].str.contains("music", na=False)]
+    .groupby("video_id")
+    .agg(
+        {
+            "video_id": "count",
+            "video_title": lambda x: x.iloc[0],
+            "channel_title": lambda x: x.iloc[0],
+            "video_url": lambda x: x.iloc[0],
+            "video_thumbnail_url": lambda x: x.iloc[0],
+        }
+    )
+    .nlargest(columns=["video_id"], n=10)
+)
