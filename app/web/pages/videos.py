@@ -11,6 +11,7 @@ from app.data import (
     subbed_vs_unsubbed,
     word_cloud_data,
     longest_video,
+    most_watched_videos,
 )
 from app.web.components import bar_chart, card, line_chart, pie_chart, word_cloud
 
@@ -90,12 +91,31 @@ layout = html.Div(
             },
         ),
         html.Div(
-            card(
-                title=f"{longest_video["video_title"]} ({str(datetime.timedelta(seconds=longest_video["video_duration"]))})",
-                description=longest_video["video_description"][:150],
-                image_url=longest_video["video_thumbnail_url"],
-            ),
-            style={"marginTop": "20px"},
+            [
+                html.H1("Most Watched Videos", className="text-center font-bold"),
+                html.Div(
+                    [
+                        card(
+                            title=row["video_title"],
+                            description="",
+                            image_url=row["video_thumbnail_url"],
+                        )
+                        for _, row in most_watched_videos.iterrows()
+                    ],
+                    className="grid grid-cols-3 gap-2",
+                ),
+            ]
+        ),
+        html.Div(
+            [
+                html.H1("Longest Video", className="text-center font-bold"),
+                card(
+                    title=f"{longest_video["video_title"]} ({str(datetime.timedelta(seconds=longest_video["video_duration"]))})",
+                    description=longest_video["video_description"][:150],
+                    image_url=longest_video["video_thumbnail_url"],
+                ),
+            ],
+            className="mt-12 flex flex-col gap-y-4 items-center justify-center",
         ),
     ],
     style={
