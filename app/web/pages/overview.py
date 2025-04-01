@@ -1,15 +1,17 @@
 import dash
-from dash import html, dcc
 import plotly.express as px
 import plotly.graph_objects as go
+from dash import dcc, html
+from matplotlib.pyplot import cla
+
 from app.data import (
-    total_videos,
     avg_videos_per_day,
     avg_yt_music_per_day,
-    total_yt_music,
     category_counts,
     heatmap_data,
     preferred_durations,
+    total_videos,
+    total_yt_music,
 )
 from app.web.components import heatmap, indicator, pie_chart
 from app.web.components.bar_chart import bar_chart
@@ -104,17 +106,16 @@ layout = html.Div(
         ),
         html.Div(
             [
-                html.H1(
-                    "Preferred Durations", className="text-xl font-bold text-center"
-                ),
                 bar_chart(
                     dcc,
                     go,
                     data_x=preferred_durations["duration_group"],
                     data_y=preferred_durations["videos"],
                     orientation="v",
+                    options={"title": "Preferred Durations"},
                 ),
-            ]
+            ],
+            className=" bg-gray-100 rounded-lg shadow-md p-4",
         ),
     ],
     className="flex flex-col gap-y-3",
