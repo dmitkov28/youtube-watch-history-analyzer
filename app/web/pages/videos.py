@@ -2,12 +2,14 @@ import datetime
 
 import dash
 import dash_mantine_components as dmc
+from matplotlib.pyplot import cla
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import html
 
 from app.data import (
     longest_video,
+    video_with_most_views,
     most_watched_videos,
     subbed_vs_unsubbed,
     videos_timeline,
@@ -87,21 +89,46 @@ layout = html.Div(
         ),
         html.Div(
             [
-                html.H1(
-                    "Longest Video",
-                    className="text-center text-xl font-bold my-12",
+                html.Div(
+                    [
+                        html.H1(
+                            "Longest Video",
+                            className="text-center text-xl font-bold my-12",
+                        ),
+                        dmc.Anchor(
+                            card(
+                                title=f"{longest_video['video_title']} ({str(datetime.timedelta(seconds=longest_video['video_duration']))})",
+                                description=longest_video["video_description"][:150],
+                                image_url=longest_video["video_thumbnail_url"],
+                            ),
+                            href=longest_video["video_url"],
+                            target="_blank",
+                        ),
+                    ],
+                    className="flex flex-col items-center justify-center gap-3",
                 ),
-                dmc.Anchor(
-                    card(
-                        title=f"{longest_video['video_title']} ({str(datetime.timedelta(seconds=longest_video['video_duration']))})",
-                        description=longest_video["video_description"][:150],
-                        image_url=longest_video["video_thumbnail_url"],
-                    ),
-                    href=longest_video["video_url"],
-                    target="_blank"
+                html.Div(
+                    [
+                        html.H1(
+                            "Video With Most Views",
+                            className="text-center text-xl font-bold my-12",
+                        ),
+                        dmc.Anchor(
+                            card(
+                                title=f"{video_with_most_views['video_title']} ({video_with_most_views["video_views"]:,} views)",
+                                description=video_with_most_views["video_description"][
+                                    :150
+                                ],
+                                image_url=video_with_most_views["video_thumbnail_url"],
+                            ),
+                            href=video_with_most_views["video_url"],
+                            target="_blank",
+                        ),
+                    ],
+                    className="flex flex-col items-center justify-center gap-3",
                 ),
             ],
-            className="mt-12 flex flex-col gap-y-4 items-center justify-center",
+            className="grid grid-cols-3 gap-3",
         ),
     ],
     style={

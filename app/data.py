@@ -278,7 +278,8 @@ yt = load_youtube_data()
 
 merged_data = merge_dataframes(wh, yt, cats)
 
-longest_video = merged_data.loc[yt["video_duration"].idxmax()].to_dict()
+longest_video = merged_data.loc[merged_data["video_duration"].idxmax()].to_dict()
+video_with_most_views = merged_data.loc[merged_data["video_views"].idxmax()].to_dict()
 
 most_watched_videos = (
     merged_data[~merged_data["video_url"].str.contains("music", na=False)]
@@ -292,5 +293,6 @@ most_watched_videos = (
             "video_thumbnail_url": lambda x: x.iloc[0],
         }
     )
-    .nlargest(columns=["video_id"], n=10)
+    .nlargest(columns=["video_id"], n=12)
+    .rename(columns={"video_id": "times_watched"})
 )
