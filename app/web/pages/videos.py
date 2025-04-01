@@ -2,16 +2,17 @@ import datetime
 
 import dash
 import dash_mantine_components as dmc
-from matplotlib.pyplot import cla
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import html
 
+
 from app.data import (
     longest_video,
-    video_with_most_views,
     most_watched_videos,
     subbed_vs_unsubbed,
+    video_with_most_comments,
+    video_with_most_views,
     videos_timeline,
     word_cloud_data,
 )
@@ -115,13 +116,35 @@ layout = html.Div(
                         ),
                         dmc.Anchor(
                             card(
-                                title=f"{video_with_most_views['video_title']} ({video_with_most_views["video_views"]:,} views)",
+                                title=f"{video_with_most_views['video_title']} ({video_with_most_views['video_views']:,} views)",
                                 description=video_with_most_views["video_description"][
                                     :150
                                 ],
                                 image_url=video_with_most_views["video_thumbnail_url"],
                             ),
                             href=video_with_most_views["video_url"],
+                            target="_blank",
+                        ),
+                    ],
+                    className="flex flex-col items-center justify-center gap-3",
+                ),
+                html.Div(
+                    [
+                        html.H1(
+                            "Video With Most Comments",
+                            className="text-center text-xl font-bold my-12",
+                        ),
+                        dmc.Anchor(
+                            card(
+                                title=f"{video_with_most_comments['video_title']} ({video_with_most_comments['video_comments']:,} comments)",
+                                description=video_with_most_comments[
+                                    "video_description"
+                                ][:150],
+                                image_url=video_with_most_comments[
+                                    "video_thumbnail_url"
+                                ],
+                            ),
+                            href=video_with_most_comments["video_url"],
                             target="_blank",
                         ),
                     ],
