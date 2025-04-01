@@ -1,9 +1,9 @@
-from pandas import Series
-import plotly.graph_objects as go
 import dash
-from dash import html, dcc
-from app.data import top_channels
-from app.web.components import bar_chart
+from dash import html
+import dash_mantine_components as dmc
+
+from app.web.components import card
+from app.data import channels_with_most_videos_watched
 
 dash.register_page(__name__, path="/channels", name="Channels")
 
@@ -15,45 +15,26 @@ layout = html.Div(
         ),
         html.Div(
             [
-                bar_chart(
-                    dcc,
-                    go,
-                    data_x=Series(top_channels.values),
-                    data_y=Series(top_channels.index),
-                    orientation="h",
-                    options={
-                        "title": "Most Watched YouTube Channels",
-                        "title_x": 0.5,
-                        "height": 1200,
-                        "yaxis": dict(
-                            automargin=True,
-                            tickmode="linear",
-                            showticklabels=True,
-                            tickfont={"size": 14, "family": "Arial, sans-serif"},
-                        ),
-                        "xaxis": dict(
-                            title="Views",
-                            tickfont={"size": 14},
-                        ),
-                        "margin": dict(
-                            l=300,
-                            r=50,
-                            t=80,
-                            b=50,
-                        ),
-                        "paper_bgcolor": "rgba(0,0,0,0)",
-                        "plot_bgcolor": "rgba(0,0,0,0)",
-                        "colorway": [
-                            "#636EFA",
-                            "#EF553B",
-                            "#00CC96",
-                            "#AB63FA",
-                            "#FFA15A",
-                        ],
-                    },
-                )
-            ],
-            className="chart-container",
+                html.H1(
+                    "Most Watched Channels",
+                    className="text-center text-xl font-bold my-12",
+                ),
+                html.Div(
+                    [
+                        dmc.Anchor(
+                            card(
+                                title=f"{row['channel_title']} ({row['watched_videos']} videos watched)",
+                                description="",
+                                image_url=row["channel_thumbnail_url"],
+                            ),
+                            href=f"https://youtube.com/{row['channel_custom_url']}",
+                            target="_blank",
+                        )
+                        for _, row in channels_with_most_videos_watched.iterrows()
+                    ],
+                    className="grid grid-cols-3 gap-2",
+                ),
+            ]
         ),
     ],
     className="dashboard-container",

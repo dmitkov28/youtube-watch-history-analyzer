@@ -212,7 +212,7 @@ def load_categories() -> pd.DataFrame:
     return df
 
 
-def load_youtube_data() -> pd.DataFrame:
+def load_youtube_video_data() -> pd.DataFrame:
     with open("youtube_data.json", "r") as f:
         data = json.load(f)
     df = json_normalize(data)
@@ -256,8 +256,37 @@ def load_youtube_data() -> pd.DataFrame:
     return df
 
 
+def load_youtube_channel_data() -> pd.DataFrame:
+    with open("youtube_channels_data.json", "r") as f:
+        data = json.load(f)
+    df = json_normalize(data)
+
+    df = df[
+        [
+            "channel_id",
+            "channel_url",
+            "channel_title",
+            "channel_date_created",
+            "channel_subscribers",
+            "channel_total_videos",
+            "channel_total_views",
+            "channel_thumbnails.medium.url",
+        ]
+    ].rename(
+        columns={
+            "channel_url": "channel_custom_url",
+            "channel_thumbnails.medium.url": "channel_thumbnail_url",
+        }
+    )
+
+    return df
+
+
 def merge_dataframes(
-    watch_history: pd.DataFrame, youtube: pd.DataFrame, categories: pd.DataFrame
+    watch_history: pd.DataFrame,
+    youtube: pd.DataFrame,
+    categories: pd.DataFrame,
+    channels: pd.DataFrame,
 ) -> pd.DataFrame:
     merged_df = pd.merge(watch_history, youtube, left_on="video_id", right_on="id")
     merged_df.drop(columns=["video_title_y", "channel_title_y"], inplace=True)
@@ -268,15 +297,20 @@ def merge_dataframes(
     merged_df = pd.merge(
         merged_df, categories, left_on="video_category_id", right_on="category_id"
     )
-    merged_df.drop(columns=["video_category_id"], inplace=True)
+    merged_df = pd.merge(
+        merged_df, channels, left_on="channel_title", right_on="channel_title"
+    )
+    merged_df.drop(columns=["video_category_id", "channel_id_y"], inplace=True)
+    merged_df.rename(columns={"channel_id_x": "channel_id"}, inplace=True)
     return merged_df
 
 
 wh = load_watch_history()
 cats = load_categories()
-yt = load_youtube_data()
+yt = load_youtube_video_data()
+channels = load_youtube_channel_data()
 
-merged_data = merge_dataframes(wh, yt, cats)
+merged_data = merge_dataframes(wh, yt, cats, channels)
 
 longest_video = merged_data.loc[merged_data["video_duration"].idxmax()].to_dict()
 video_with_most_views = merged_data.loc[merged_data["video_views"].idxmax()].to_dict()
@@ -298,4 +332,21 @@ most_watched_videos = (
     )
     .nlargest(columns=["video_id"], n=12)
     .rename(columns={"video_id": "times_watched"})
+)
+
+channels_with_most_videos_watched = (
+    merged_data[~merged_data["video_url"].str.contains("music")]
+    .groupby(by="channel_id")
+    .agg(
+        {
+            "video_id": "count",
+            "channel_title": lambda x: x.iloc[0],
+            "channel_custom_url": lambda x: x.iloc[0],
+            "channel_thumbnail_url": lambda x: x.iloc[0],
+        }
+    )
+    .sort_values(by="video_id", ascending=False)
+    .head(12)
+    .reset_index()
+    .rename(columns={"video_id": "watched_videos"})
 )
