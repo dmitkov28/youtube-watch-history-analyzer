@@ -5,6 +5,7 @@ from .pie_chart import pie_chart
 from .heatmap import heatmap
 from .word_cloud import word_cloud
 from .card import card
+from .mantine_stacked_bar_chart import mantine_stacked_bar_chart
 
 __all__ = [
     "bar_chart",
@@ -14,4 +15,5 @@ __all__ = [
     "heatmap",
     "word_cloud",
     "card",
+    "mantine_stacked_bar_chart"
 ]
