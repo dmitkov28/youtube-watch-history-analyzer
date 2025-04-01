@@ -14,7 +14,6 @@ from app.data import (
     video_with_most_comments,
     video_with_most_views,
     videos_timeline,
-    videos_timeline,
     word_cloud_data,
 )
 from app.web.components import card, line_chart, pie_chart, word_cloud
