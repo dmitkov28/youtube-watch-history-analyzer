@@ -2,7 +2,6 @@ import dash
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import dcc, html
-from matplotlib.pyplot import cla
 
 from app.data import (
     avg_videos_per_day,
@@ -24,26 +23,14 @@ layout = html.Div(
             [
                 html.Div(
                     [indicator(dcc, go, total_videos, "Total Videos Watched")],
-                    style={
-                        "width": "48%",
-                        "backgroundColor": "#f8f9fa",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                        "padding": "15px",
-                    },
+                    className="bg-gray-100 rounded-lg shadow-md p-4",
                 ),
                 html.Div(
                     [indicator(dcc, go, avg_videos_per_day, "Average Videos per Day")],
-                    style={
-                        "width": "48%",
-                        "backgroundColor": "#f8f9fa",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                        "padding": "15px",
-                    },
+                    className="bg-gray-100 rounded-lg shadow-md p-4",
                 ),
             ],
-            className="flex justify-between max-h-fit",
+            className="grid grid-cols-2 gap-12 max-h-fit",
         ),
         html.Div(
             [
@@ -53,13 +40,7 @@ layout = html.Div(
                             dcc, go, total_yt_music, "Total YT Music Videos Watched"
                         )
                     ],
-                    style={
-                        "width": "48%",
-                        "backgroundColor": "#f8f9fa",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                        "padding": "15px",
-                    },
+                    className="bg-gray-100 rounded-lg shadow-md p-4",
                 ),
                 html.Div(
                     [
@@ -70,16 +51,10 @@ layout = html.Div(
                             "Average YT Music Videos per Day",
                         )
                     ],
-                    style={
-                        "width": "48%",
-                        "backgroundColor": "#f8f9fa",
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                        "padding": "15px",
-                    },
+                    className="bg-gray-100 rounded-lg shadow-md p-4",
                 ),
             ],
-            className="flex justify-between max-h-fit",
+            className="grid grid-cols-2 gap-12 max-h-fit",
         ),
         html.Div(
             pie_chart(category_counts, "category_title", "count", "Video Categories"),
@@ -97,12 +72,7 @@ layout = html.Div(
                 title="Watch Times Heatmap",
                 legend_label="Videos Watched",
             ),
-            style={
-                "backgroundColor": "#f8f9fa",
-                "borderRadius": "10px",
-                "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                "padding": "15px",
-            },
+            className="bg-gray-100 rounded-lg shadow-md p-4",
         ),
         html.Div(
             [
@@ -115,7 +85,7 @@ layout = html.Div(
                     options={"title": "Preferred Durations"},
                 ),
             ],
-            className=" bg-gray-100 rounded-lg shadow-md p-4",
+            className="bg-gray-100 rounded-lg shadow-md p-4",
         ),
     ],
     className="flex flex-col gap-y-3",
