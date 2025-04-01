@@ -15,19 +15,6 @@ def load_csv_as_df(file_path: str) -> pd.DataFrame:
     return pd.read_csv(file_path)
 
 
-def load_and_preprocess_subscriptions(file_path: str) -> pd.DataFrame:
-    df = load_csv_as_df(file_path)
-    df.rename(
-        columns={
-            "Channel Id": "channel_id",
-            "Channel Url": "channel_url",
-            "Channel Title": "channel_name",
-        },
-        inplace=True,
-    )
-    return df
-
-
 def load_and_preprocess_watch_history() -> Dict[str, Any]:
     """
     Load and preprocess YouTube watch history data.
@@ -45,12 +32,6 @@ def load_and_preprocess_watch_history() -> Dict[str, Any]:
 
     df["day_of_week"] = df["timestamp"].dt.day_name()
     df["hour"] = df["timestamp"].dt.hour
-
-    music = df[df["video_url"].str.contains("music", na=False)].copy()
-    videos = df[~df["video_url"].str.contains("music", na=False)].copy()
-
-    music["date"] = music["timestamp"].dt.date
-    videos["date"] = videos["timestamp"].dt.date
 
     heatmap_data = df.groupby(["day_of_week", "hour"]).size().reset_index(name="count")
     days_order = [
@@ -78,25 +59,12 @@ def load_and_preprocess_youtube_data() -> pd.DataFrame:
         data = json.load(f)
         yt_data_df = json_normalize(data)
 
-    subscriptions = load_and_preprocess_subscriptions("./subscriptions.csv")
-
-    yt_data_df["is_subscribed"] = yt_data_df["snippet.channelId"].isin(
-        subscriptions["channel_id"]
-    )
-
     return yt_data_df
 
 
 try:
     watch_history_data = load_and_preprocess_watch_history()
     youtube_data = load_and_preprocess_youtube_data()
-    subbed_vs_unsubbed = (
-        youtube_data[~youtube_data["snippet.categoryId"].str.contains("10")][
-            ["is_subscribed"]
-        ]
-        .value_counts()
-        .reset_index()
-    )
     word_cloud_data = " ".join(youtube_data["snippet.title"].dropna().astype(str))
     heatmap_data = watch_history_data["heatmap_data"]
 except Exception:
@@ -190,6 +158,19 @@ def load_youtube_channel_data() -> pd.DataFrame:
     return df
 
 
+def load_subscriptions(file_path: str) -> pd.DataFrame:
+    df = load_csv_as_df(file_path)
+    df.rename(
+        columns={
+            "Channel Id": "channel_id",
+            "Channel Url": "channel_url",
+            "Channel Title": "channel_name",
+        },
+        inplace=True,
+    )
+    return df
+
+
 def merge_dataframes(
     watch_history: pd.DataFrame,
     youtube: pd.DataFrame,
@@ -219,8 +200,12 @@ wh = load_watch_history()
 categories = load_categories()
 yt = load_youtube_video_data()
 channels = load_youtube_channel_data()
+subscriptions = load_subscriptions("subscriptions.csv")
 
 merged_data = merge_dataframes(wh, yt, categories, channels)
+merged_data["is_subscribed"] = merged_data["channel_id"].isin(
+    subscriptions["channel_id"]
+)
 
 videos = merged_data[~merged_data["video_url"].str.contains("music")]
 yt_music = merged_data[merged_data["video_url"].str.contains("music")]
@@ -306,4 +291,21 @@ preferred_durations = (
     .size()
     .reset_index(name="videos")
     .sort_values(by="videos", ascending=False)
+)
+
+subbed_vs_unsubbed = videos["is_subscribed"].value_counts().reset_index()
+
+channel_videos_watched = (
+    videos.groupby("channel_id")
+    .agg(
+        {
+            "channel_title": lambda x: x.iloc[0],
+            "channel_total_videos": lambda x: x.iloc[0],
+            "video_id": "nunique",
+        }
+    )
+    .sort_values("video_id", ascending=False)
+    .reset_index()
+    .rename(columns={"video_id": "videos_watched"})
+    .head(10)
 )
