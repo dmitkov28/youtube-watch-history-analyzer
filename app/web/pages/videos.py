@@ -22,16 +22,6 @@ dash.register_page(__name__, path="/videos", name="Videos")
 
 layout = html.Div(
     [
-        html.H1(
-            children="Videos Dashboard",
-            style={
-                "textAlign": "center",
-                "marginBottom": "30px",
-                "marginTop": "20px",
-                "color": "#2c3e50",
-                "fontWeight": "bold",
-            },
-        ),
         html.Div(
             [
                 line_chart(
@@ -42,13 +32,7 @@ layout = html.Div(
                     title="Weekly Videos Watched",
                 )
             ],
-            style={
-                "marginBottom": "30px",
-                "padding": "15px",
-                "backgroundColor": "#f8f9fa",
-                "borderRadius": "10px",
-                "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-            },
+            className="mb-8 p-4 bg-gray-100 rounded-lg shadow-md",
         ),
         html.Div(
             pie_chart(
@@ -56,14 +40,16 @@ layout = html.Div(
                 "is_subscribed",
                 "count",
                 "Watched Videos (Subscribed vs Unsubscribed Channels)",
-            )
+            ),
+            className="mb-8 p-4 bg-gray-100 rounded-lg shadow-md",
         ),
         html.Div(
             word_cloud(
                 go,
                 word_cloud_data,
                 "Video Titles Wordcloud",
-            )
+            ),
+            className="mb-8 p-4 bg-gray-100 rounded-lg shadow-md",
         ),
         html.Div(
             [
@@ -154,10 +140,5 @@ layout = html.Div(
             className="grid grid-cols-3 gap-3",
         ),
     ],
-    style={
-        "fontFamily": "Arial, sans-serif",
-        "padding": "20px",
-        "maxWidth": "1200px",
-        "margin": "0 auto",
-    },
+    className="font-sans p-5 max-w-7xl mx-auto",
 )
