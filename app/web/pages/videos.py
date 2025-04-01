@@ -1,19 +1,19 @@
-import dash
 import datetime
+
+import dash
+import dash_mantine_components as dmc
 import plotly.express as px
 import plotly.graph_objects as go
-from dash import dcc, html
-from pandas import Series
+from dash import html
 
 from app.data import (
-    top_videos,
-    videos_timeline,
-    subbed_vs_unsubbed,
-    word_cloud_data,
     longest_video,
     most_watched_videos,
+    subbed_vs_unsubbed,
+    videos_timeline,
+    word_cloud_data,
 )
-from app.web.components import bar_chart, card, line_chart, pie_chart, word_cloud
+from app.web.components import card, line_chart, pie_chart, word_cloud
 
 dash.register_page(__name__, path="/videos", name="Videos")
 
@@ -64,41 +64,20 @@ layout = html.Div(
         ),
         html.Div(
             [
-                bar_chart(
-                    dcc,
-                    go,
-                    data_x=Series(top_videos.values),
-                    data_y=Series(top_videos.index),
-                    orientation="h",
-                    options={
-                        "title": "Most Watched YouTube Videos",
-                        "title_x": 0.5,
-                        "height": 1200,
-                        "yaxis": dict(
-                            automargin=True,
-                            tickmode="linear",
-                            showticklabels=True,
-                        ),
-                        "margin": dict(l=300, r=50, t=70, b=50),
-                    },
-                )
-            ],
-            style={
-                "backgroundColor": "#f8f9fa",
-                "borderRadius": "10px",
-                "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
-                "padding": "15px",
-            },
-        ),
-        html.Div(
-            [
-                html.H1("Most Watched Videos", className="text-center font-bold"),
+                html.H1(
+                    "Most Watched Videos",
+                    className="text-center text-xl font-bold my-12",
+                ),
                 html.Div(
                     [
-                        card(
-                            title=row["video_title"],
-                            description="",
-                            image_url=row["video_thumbnail_url"],
+                        dmc.Anchor(
+                            card(
+                                title=f"{row['video_title']} ({row['times_watched']} times)",
+                                description="",
+                                image_url=row["video_thumbnail_url"],
+                            ),
+                            href=row["video_url"],
+                            target="_blank",
                         )
                         for _, row in most_watched_videos.iterrows()
                     ],
@@ -108,11 +87,18 @@ layout = html.Div(
         ),
         html.Div(
             [
-                html.H1("Longest Video", className="text-center font-bold"),
-                card(
-                    title=f"{longest_video["video_title"]} ({str(datetime.timedelta(seconds=longest_video["video_duration"]))})",
-                    description=longest_video["video_description"][:150],
-                    image_url=longest_video["video_thumbnail_url"],
+                html.H1(
+                    "Longest Video",
+                    className="text-center text-xl font-bold my-12",
+                ),
+                dmc.Anchor(
+                    card(
+                        title=f"{longest_video['video_title']} ({str(datetime.timedelta(seconds=longest_video['video_duration']))})",
+                        description=longest_video["video_description"][:150],
+                        image_url=longest_video["video_thumbnail_url"],
+                    ),
+                    href=longest_video["video_url"],
+                    target="_blank"
                 ),
             ],
             className="mt-12 flex flex-col gap-y-4 items-center justify-center",
