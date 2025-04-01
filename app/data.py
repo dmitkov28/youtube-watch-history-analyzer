@@ -294,3 +294,16 @@ videos_timeline = (
     .rename(columns={"video_id": "count"})
     .assign(timestamp=lambda x: x["timestamp"].dt.start_time)
 )
+
+
+bins = [0, 60, 300, 900, 1800, float("inf")]
+labels = ["<1 min", "1-5 min", "5-15 min", "15-30 min", "30+ min"]
+videos.loc[:, "duration_group"] = pd.cut(
+    videos["video_duration"], bins=bins, labels=labels, right=False
+)
+preferred_durations = (
+    videos.groupby("duration_group", observed=True)
+    .size()
+    .reset_index(name="videos")
+    .sort_values(by="videos", ascending=False)
+)

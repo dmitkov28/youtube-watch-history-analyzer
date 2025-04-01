@@ -9,8 +9,10 @@ from app.data import (
     total_yt_music,
     category_counts,
     heatmap_data,
+    preferred_durations,
 )
 from app.web.components import heatmap, indicator, pie_chart
+from app.web.components.bar_chart import bar_chart
 
 dash.register_page(__name__, path="/overview", name="Overview")
 
@@ -99,6 +101,20 @@ layout = html.Div(
                 "boxShadow": "0 4px 6px rgba(0, 0, 0, 0.1)",
                 "padding": "15px",
             },
+        ),
+        html.Div(
+            [
+                html.H1(
+                    "Preferred Durations", className="text-xl font-bold text-center"
+                ),
+                bar_chart(
+                    dcc,
+                    go,
+                    data_x=preferred_durations["duration_group"],
+                    data_y=preferred_durations["videos"],
+                    orientation="v",
+                ),
+            ]
         ),
     ],
     className="flex flex-col gap-y-3",
