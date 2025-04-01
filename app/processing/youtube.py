@@ -27,19 +27,27 @@ async def get_channel_metadata(client, channel_id):
     channels = []
 
     for channel in response.get("items", []):
+        _id = channel["id"]
         title = channel["snippet"]["title"]
         description = channel["snippet"]["description"]
+        date_created = channel["snippet"]["publishedAt"]
+        thumbnails = channel["snippet"]["thumbnails"]
+        url = channel["snippet"].get("customUrl")
         subscribers = channel["statistics"]["subscriberCount"]
         videos = channel["statistics"]["videoCount"]
         views = channel["statistics"]["viewCount"]
 
         channels.append(
             {
-                "title": title,
-                "description": description,
-                "subscribers": subscribers,
-                "total_videos": videos,
-                "total_views": views,
+                "channel_id": _id,
+                "channel_url": url,
+                "channel_title": title,
+                "channel_description": description,
+                "channel_date_created": date_created,
+                "channel_subscribers": subscribers,
+                "channel_total_videos": videos,
+                "channel_total_views": views,
+                "channel_thumbnails": thumbnails,
             }
         )
     return channels
