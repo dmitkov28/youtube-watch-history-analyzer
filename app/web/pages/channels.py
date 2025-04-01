@@ -10,10 +10,6 @@ dash.register_page(__name__, path="/channels", name="Channels")
 layout = html.Div(
     [
         html.Div(
-            html.H1("Top YouTube Channels", className="dashboard-title"),
-            className="header-container",
-        ),
-        html.Div(
             [
                 html.H1(
                     "Most Watched Channels",
