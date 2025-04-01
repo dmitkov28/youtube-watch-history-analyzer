@@ -3,11 +3,11 @@ from dash import html, dcc
 import plotly.express as px
 import plotly.graph_objects as go
 from app.data import (
-    total_videos_watched,
+    total_videos,
     avg_videos_per_day,
+    avg_yt_music_per_day,
     total_yt_music,
-    avg_yt_music,
-    categories,
+    category_counts,
     heatmap_data,
 )
 from app.web.components import heatmap, indicator, pie_chart
@@ -19,7 +19,7 @@ layout = html.Div(
         html.Div(
             [
                 html.Div(
-                    [indicator(dcc, go, total_videos_watched, "Total Videos Watched")],
+                    [indicator(dcc, go, total_videos, "Total Videos Watched")],
                     style={
                         "width": "48%",
                         "backgroundColor": "#f8f9fa",
@@ -60,7 +60,10 @@ layout = html.Div(
                 html.Div(
                     [
                         indicator(
-                            dcc, go, avg_yt_music, "Average YT Music Videos per Day"
+                            dcc,
+                            go,
+                            avg_yt_music_per_day,
+                            "Average YT Music Videos per Day",
                         )
                     ],
                     style={
@@ -75,7 +78,7 @@ layout = html.Div(
             className="flex justify-between max-h-fit",
         ),
         html.Div(
-            pie_chart(categories, "category_title", "id", "Video Categories"),
+            pie_chart(category_counts, "category_title", "count", "Video Categories"),
             style={
                 "backgroundColor": "#f8f9fa",
                 "borderRadius": "10px",

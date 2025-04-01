@@ -52,33 +52,6 @@ def load_and_preprocess_watch_history() -> Dict[str, Any]:
     music["date"] = music["timestamp"].dt.date
     videos["date"] = videos["timestamp"].dt.date
 
-    total_yt_music = music["video_id"].nunique()
-    total_videos_watched = videos["video_id"].nunique()
-
-    avg_videos_per_day = videos.groupby("date").size().mean()
-    avg_yt_music = music.groupby("date").size().mean()
-
-    videos_timeline = (
-        videos.groupby(videos["timestamp"].dt.to_period("W"))["video_id"]
-        .count()
-        .reset_index()
-        .rename(columns={"video_id": "count"})
-    )
-    videos_timeline["timestamp"] = videos_timeline["timestamp"].dt.start_time
-
-    watched_videos_count = (
-        df.groupby(df["timestamp"].dt.to_period("W"))["video_id"]
-        .count()
-        .reset_index()
-        .rename(columns={"video_id": "count"})
-    )
-    watched_videos_count["timestamp"] = watched_videos_count[
-        "timestamp"
-    ].dt.to_timestamp()
-
-    top_videos = videos["video_title"].value_counts().nlargest(10).sort_values()
-    top_channels = videos["channel_title"].value_counts().nlargest(50).sort_values()
-
     heatmap_data = df.groupby(["day_of_week", "hour"]).size().reset_index(name="count")
     days_order = [
         "Monday",
@@ -96,16 +69,6 @@ def load_and_preprocess_watch_history() -> Dict[str, Any]:
 
     return {
         "raw_df": df,
-        "music_df": music,
-        "videos_df": videos,
-        "videos_timeline": videos_timeline,
-        "watched_videos_count": watched_videos_count,
-        "total_yt_music": total_yt_music,
-        "total_videos_watched": total_videos_watched,
-        "avg_videos_per_day": avg_videos_per_day,
-        "avg_yt_music": avg_yt_music,
-        "top_videos": top_videos,
-        "top_channels": top_channels,
         "heatmap_data": heatmap_data,
     }
 
@@ -124,43 +87,8 @@ def load_and_preprocess_youtube_data() -> pd.DataFrame:
     return yt_data_df
 
 
-def load_category_data() -> pd.DataFrame:
-    try:
-        with open("youtube_data.json", "r") as f:
-            data = json.load(f)
-            yt_data_df = json_normalize(data)
-
-        with open("categories.json", "r") as f:
-            categories = json.load(f)
-            categories_df = json_normalize(categories)
-        categories_df.rename(
-            columns={"id": "category_id", "title": "category_title"}, inplace=True
-        )
-
-        merged_df = pd.merge(
-            yt_data_df,
-            categories_df,
-            left_on="snippet.categoryId",
-            right_on="category_id",
-        )
-
-        categories = (
-            merged_df.groupby("category_title")
-            .agg({"id": "count"})
-            .nlargest(5, columns=["id"])
-            .reset_index()
-        )
-
-        return categories
-    except Exception as e:
-        print(f"Error loading category data: {e}")
-
-        return pd.DataFrame(columns=["category_title", "id"])
-
-
 try:
     watch_history_data = load_and_preprocess_watch_history()
-    categories = load_category_data()
     youtube_data = load_and_preprocess_youtube_data()
     subbed_vs_unsubbed = (
         youtube_data[~youtube_data["snippet.categoryId"].str.contains("10")][
@@ -169,29 +97,9 @@ try:
         .value_counts()
         .reset_index()
     )
-
     word_cloud_data = " ".join(youtube_data["snippet.title"].dropna().astype(str))
-
-    total_videos_watched = watch_history_data["total_videos_watched"]
-    avg_videos_per_day = watch_history_data["avg_videos_per_day"]
-    total_yt_music = watch_history_data["total_yt_music"]
-    avg_yt_music = watch_history_data["avg_yt_music"]
-    videos_timeline = watch_history_data["videos_timeline"]
-    watched_videos_count = watch_history_data["watched_videos_count"]
-    top_videos = watch_history_data["top_videos"]
-    top_channels = watch_history_data["top_channels"]
     heatmap_data = watch_history_data["heatmap_data"]
-except Exception as e:
-    print(f"Error initializing data module: {e}")
-    total_videos_watched = 0
-    avg_videos_per_day = 0
-    total_yt_music = 0
-    avg_yt_music = 0
-    videos_timeline = pd.DataFrame()
-    watched_videos_count = pd.DataFrame()
-    top_videos = pd.Series()
-    top_channels = pd.Series()
-    categories = pd.DataFrame(columns=["category_title", "id"])
+except Exception:
     heatmap_data = pd.DataFrame()
     youtube_data = pd.DataFrame()
 
@@ -302,25 +210,45 @@ def merge_dataframes(
     )
     merged_df.drop(columns=["video_category_id", "channel_id_y"], inplace=True)
     merged_df.rename(columns={"channel_id_x": "channel_id"}, inplace=True)
+    merged_df = merged_df[~merged_df.duplicated(subset=["timestamp"], keep="first")]
+
     return merged_df
 
 
 wh = load_watch_history()
-cats = load_categories()
+categories = load_categories()
 yt = load_youtube_video_data()
 channels = load_youtube_channel_data()
 
-merged_data = merge_dataframes(wh, yt, cats, channels)
+merged_data = merge_dataframes(wh, yt, categories, channels)
 
-longest_video = merged_data.loc[merged_data["video_duration"].idxmax()].to_dict()
-video_with_most_views = merged_data.loc[merged_data["video_views"].idxmax()].to_dict()
-video_with_most_comments = merged_data.loc[
-    merged_data["video_comments"].idxmax()
-].to_dict()
+videos = merged_data[~merged_data["video_url"].str.contains("music")]
+yt_music = merged_data[merged_data["video_url"].str.contains("music")]
+
+total_videos = videos["video_id"].nunique()
+total_yt_music = yt_music["video_id"].nunique()
+
+avg_videos_per_day = (
+    videos.assign(date=videos["timestamp"].dt.date)
+    .groupby("date")["video_id"]
+    .size()
+    .mean()
+)
+
+avg_yt_music_per_day = (
+    yt_music.assign(date=yt_music["timestamp"].dt.date)
+    .groupby("date")["video_id"]
+    .size()
+    .mean()
+)
+
+
+longest_video = videos.loc[videos["video_duration"].idxmax()].to_dict()
+video_with_most_views = videos.loc[videos["video_views"].idxmax()].to_dict()
+video_with_most_comments = videos.loc[videos["video_comments"].idxmax()].to_dict()
 
 most_watched_videos = (
-    merged_data[~merged_data["video_url"].str.contains("music", na=False)]
-    .groupby("video_id")
+    videos.groupby("video_id")
     .agg(
         {
             "video_id": "count",
@@ -349,4 +277,20 @@ channels_with_most_videos_watched = (
     .head(12)
     .reset_index()
     .rename(columns={"video_id": "watched_videos"})
+)
+
+category_counts = (
+    merged_data.groupby("category_title")
+    .size()
+    .reset_index(name="count")
+    .nlargest(columns="count", n=5)
+)
+
+
+videos_timeline = (
+    videos.groupby(videos["timestamp"].dt.to_period("W"))["video_id"]
+    .count()
+    .reset_index()
+    .rename(columns={"video_id": "count"})
+    .assign(timestamp=lambda x: x["timestamp"].dt.start_time)
 )
