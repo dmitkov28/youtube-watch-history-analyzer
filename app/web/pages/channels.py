@@ -2,8 +2,8 @@ import dash
 from dash import html
 import dash_mantine_components as dmc
 
-from app.web.components import card
-from app.data import channels_with_most_videos_watched
+from app.web.components import card, mantine_stacked_bar_chart
+from app.data import channels_with_most_videos_watched, channel_videos_watched
 
 dash.register_page(__name__, path="/channels", name="Channels")
 
@@ -31,6 +31,22 @@ layout = html.Div(
                     className="grid grid-cols-3 gap-2",
                 ),
             ]
+        ),
+        html.Div(
+            [
+                html.H2("Channels with most videos watched"),
+                mantine_stacked_bar_chart(
+                    dmc,
+                    data=channel_videos_watched,
+                    data_key="channel_title",
+                    type="percent",
+                    series=[
+                        {"name": "channel_total_videos", "color": "teal.6"},
+                        {"name": "videos_watched", "color": "blue.6"},
+                    ],
+                )
+            ],
+            className="my-8"
         ),
     ],
     className="dashboard-container",
