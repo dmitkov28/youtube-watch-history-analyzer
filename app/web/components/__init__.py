@@ -15,5 +15,5 @@ __all__ = [
     "heatmap",
     "word_cloud",
     "card",
-    "mantine_stacked_bar_chart"
+    "mantine_stacked_bar_chart",
 ]
