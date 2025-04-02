@@ -295,17 +295,22 @@ preferred_durations = (
 
 subbed_vs_unsubbed = videos["is_subscribed"].value_counts().reset_index()
 
-channel_videos_watched = (
-    videos.groupby("channel_id")
-    .agg(
-        {
-            "channel_title": lambda x: x.iloc[0],
-            "channel_total_videos": lambda x: x.iloc[0],
-            "video_id": "nunique",
-        }
-    )
-    .sort_values("video_id", ascending=False)
-    .reset_index()
-    .rename(columns={"video_id": "videos_watched"})
-    .head(10)
+channel_videos_watched = sorted(
+    (
+        videos.groupby("channel_id")
+        .agg(
+            {
+                "channel_title": lambda x: x.iloc[0],
+                "channel_total_videos": lambda x: x.iloc[0],
+                "video_id": "nunique",
+            }
+        )
+        .sort_values("video_id", ascending=False)
+        .reset_index()
+        .rename(columns={"video_id": "videos_watched"})
+        .head(10)
+    ).to_dict(orient="records"),
+    key=lambda x: int(x.get("videos_watched", 0))
+    / int(x.get("channel_total_videos", 1)),
+    reverse=True,
 )
